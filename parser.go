@@ -46,7 +46,7 @@ func parseEOF(l *lexer, parsed chan *string) (parseFunc, error) {
 		return parseEOF, nil
 	}
 	if tok.typ != tokenEOF {
-		return nil, errors.New("expected EOF, got " + tok.typ.String())
+		return nil, errors.New("expected EOF, got " + tok.String())
 	}
 	return nil, nil
 }
@@ -62,7 +62,7 @@ func parseStringOrNull(l *lexer, parsed chan *string) (parseFunc, error) {
 		parsed <- nil
 		return parseSeparatorOrDelim, nil
 	}
-	return nil, errors.New("expected string, got " + tok.typ.String())
+	return nil, errors.New("expected string, got " + tok.String())
 }
 
 func parseStringOrNullOrEnd(l *lexer, parsed chan *string) (parseFunc, error) {
@@ -78,7 +78,7 @@ func parseStringOrNullOrEnd(l *lexer, parsed chan *string) (parseFunc, error) {
 	} else if tok.typ == tokenArrayEnd {
 		return parseEOF, nil
 	}
-	return nil, errors.New("Expected string or end, got " + tok.typ.String())
+	return nil, errors.New("Expected string or end, got " + tok.String())
 }
 
 func parseSeparatorOrDelim(l *lexer, parsed chan *string) (parseFunc, error) {
@@ -90,7 +90,7 @@ func parseSeparatorOrDelim(l *lexer, parsed chan *string) (parseFunc, error) {
 	} else if tok.typ == tokenArrayEnd {
 		return parseEOF, nil
 	}
-	return nil, errors.New("expected separator or delim, got " + tok.typ.String())
+	return nil, errors.New("expected separator or delim, got " + tok.String())
 }
 
 func parseStart(l *lexer, parsed chan *string) (parseFunc, error) {
@@ -100,5 +100,5 @@ func parseStart(l *lexer, parsed chan *string) (parseFunc, error) {
 	} else if tok.typ == tokenArrayStart {
 		return parseStringOrNullOrEnd, nil
 	}
-	return nil, errors.New("expected separator or delim, got " + tok.typ.String())
+	return nil, errors.New("expected separator or delim, got " + tok.String())
 }

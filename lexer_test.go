@@ -7,6 +7,7 @@ import (
 var testInputs = map[string][]token{
 	``:                                       []token{{typ: tokenError, val: "expected array to start before "}},
 	`{}`:                                     []token{{typ: tokenArrayStart, val: "{"}, {typ: tokenArrayEnd, val: "}"}},
+	`{    }`:                                 []token{{typ: tokenArrayStart, val: "{"}, {typ: tokenWhitespace, val: "    "}, {typ: tokenArrayEnd, val: "}"}},
 	`{lions}`:                                []token{{typ: tokenArrayStart, val: "{"}, {typ: tokenString, val: "lions"}, {typ: tokenArrayEnd, val: "}"}},
 	`{lions,tigers}`:                         []token{{typ: tokenArrayStart, val: "{"}, {typ: tokenString, val: "lions"}, {typ: tokenSeparator, val: ","}, {typ: tokenString, val: "tigers"}, {typ: tokenArrayEnd, val: "}"}},
 	`{lions,tigers,bears}`:                   []token{{typ: tokenArrayStart, val: "{"}, {typ: tokenString, val: "lions"}, {typ: tokenSeparator, val: ","}, {typ: tokenString, val: "tigers"}, {typ: tokenSeparator, val: ","}, {typ: tokenString, val: "bears"}, {typ: tokenArrayEnd, val: "}"}},
@@ -28,7 +29,7 @@ func TestInputsTable(t *testing.T) {
 				break
 			}
 		}
-		t.Logf("%#+v\n", tokens)
+		t.Logf("`%s`: %#+v\n", input, tokens)
 		if len(tokens) != len(expectedTokens) {
 			t.Fatalf("Expected %d tokens, got %d\n", len(expectedTokens), len(tokens))
 		}

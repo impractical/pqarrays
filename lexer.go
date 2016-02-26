@@ -68,6 +68,10 @@ type token struct {
 	val string
 }
 
+func (t token) String() string {
+	return fmt.Sprintf("%s: %s", t.typ.String(), t.val)
+}
+
 func lex(input string) *lexer {
 	l := &lexer{
 		input:  input,
@@ -82,7 +86,7 @@ func (l *lexer) nextToken() token {
 }
 
 func (l *lexer) run() {
-	for l.state = lexStart; l.state != nil; { // TODO(paddy): default state
+	for l.state = lexStart; l.state != nil; {
 		l.state = l.state(l)
 	}
 }
@@ -158,7 +162,7 @@ func (l *lexer) consumeWhitespace() {
 	for unicode.IsSpace(l.peek()) {
 		l.next()
 	}
-	if l.start > l.pos {
+	if l.pos > l.start {
 		l.emit(tokenWhitespace)
 	}
 }
@@ -203,7 +207,6 @@ func lexItem(l *lexer) stateFunc {
 	case r == separator:
 		return l.errorf("empty item in array")
 	case unicode.IsSpace(r):
-		l.consumeWhitespace()
 		return lexItem
 	case r == '"':
 		return lexQuotedString
@@ -246,11 +249,25 @@ func lexString(l *lexer) stateFunc {
 			if l.pos <= l.start {
 				return l.errorf(rightDelim + " in unquoted string")
 			}
+			lastNonSpace := -1
+			s := l.input[l.start:l.pos]
+			for pos, r := range s {
+				if !unicode.IsSpace(r) {
+					lastNonSpace = l.start + pos + 1
+				}
+			}
+			if lastNonSpace < 0 {
+				return l.errorf("unquoted empty string")
+			}
+			for lastNonSpace < l.pos {
+				l.backup()
+			}
 			if string(l.input[l.start:l.pos]) == "NULL" {
 				l.emit(tokenNull)
 			} else {
 				l.emit(tokenString)
 			}
+			l.consumeWhitespace()
 			return lexRightDelim
 		}
 		switch r := l.next(); {
@@ -258,8 +275,6 @@ func lexString(l *lexer) stateFunc {
 			return l.errorf("eof while parsing string")
 		case r == '"':
 			return l.errorf("\" in unquoted string")
-		case unicode.IsSpace(r):
-			return l.errorf("unquoted empty string")
 		case r == '\\':
 			return l.errorf("\\ in unquoted string")
 		case r == separator:
@@ -278,6 +293,7 @@ func lexString(l *lexer) stateFunc {
 }
 
 func lexSeparator(l *lexer) stateFunc {
+	l.consumeWhitespace()
 	if strings.HasPrefix(l.input[l.pos:], rightDelim) {
 		return lexRightDelim
 	}

@@ -9,22 +9,27 @@ func strPtr(in string) *string {
 }
 
 var parseTestInputs = map[string][]*string{
-	`{}`:                            []*string{},
-	`{lions}`:                       []*string{strPtr("lions")},
-	`{lions,tigers}`:                []*string{strPtr("lions"), strPtr("tigers")},
-	`{lions,tigers,NULL}`:           []*string{strPtr("lions"), strPtr("tigers"), nil},
-	`{lions,tigers,bears}`:          []*string{strPtr("lions"), strPtr("tigers"), strPtr("bears")},
-	`{lions,tigers,bears,"oh my!"}`: []*string{strPtr("lions"), strPtr("tigers"), strPtr("bears"), strPtr("oh my!")},
+	`{      }`:                             []*string{},
+	`{}`:                                   []*string{},
+	`{lions}`:                              []*string{strPtr("lions")},
+	`{ lions}`:                             []*string{strPtr("lions")},
+	`{lions,tigers}`:                       []*string{strPtr("lions"), strPtr("tigers")},
+	`{lions, tigers  }`:                    []*string{strPtr("lions"), strPtr("tigers")},
+	`{lions,tigers,NULL}`:                  []*string{strPtr("lions"), strPtr("tigers"), nil},
+	`{lions, tigers ,  NULL }`:             []*string{strPtr("lions"), strPtr("tigers"), nil},
+	`{lions,tigers,bears}`:                 []*string{strPtr("lions"), strPtr("tigers"), strPtr("bears")},
+	`{ lions ,tigers  ,bears, "oh my!"  }`: []*string{strPtr("lions"), strPtr("tigers"), strPtr("bears"), strPtr("oh my!")},
 }
 
 func TestParseInputsTable(t *testing.T) {
 	for input, expected := range parseTestInputs {
 		l := lex(input)
+		t.Logf("`%s`\n", input)
 		output, err := parse(l)
 		if err != nil {
 			t.Fatalf(err.Error())
 		}
-		t.Logf("`%s`: %#+v\n", input, output)
+		t.Logf("%#+v\n", output)
 		if len(output) != len(expected) {
 			t.Fatalf("Expected %d items in array, got %d\n", len(expected), len(output))
 		}
@@ -32,7 +37,7 @@ func TestParseInputsTable(t *testing.T) {
 			if item == nil && expected[pos] != nil {
 				t.Errorf("Expected %d to be %s, got nil instead.", pos, *expected[pos])
 			} else if item != nil && expected[pos] == nil {
-				t.Errorf("Expected %d to be nil, got %s instead.", pos, *item)
+				t.Errorf("Expected %d to be nil, got '%s' instead.", pos, *item)
 			} else if item != nil && expected[pos] != nil {
 				continue
 			} else if item == nil && expected[pos] == nil {
