@@ -178,14 +178,14 @@ func lexArrayStart(l *lexer) stateFunc {
 func lexLeftDelim(l *lexer) stateFunc {
 	l.pos += len(leftDelim)
 	l.emit(tokenArrayStart)
-	l.arrayDepth += 1
+	l.arrayDepth++
 	return lexItem
 }
 
 func lexRightDelim(l *lexer) stateFunc {
 	l.pos += len(rightDelim)
 	l.emit(tokenArrayEnd)
-	l.arrayDepth -= 1
+	l.arrayDepth--
 	return lexSeparator
 }
 
@@ -293,6 +293,6 @@ func lexSeparator(l *lexer) stateFunc {
 		return nil
 	} else {
 		l.backup()
-		return l.errorf("expected %s, none found before %s\n", separator, l.input[l.pos:])
+		return l.errorf("expected %s, none found before %s\n", string(separator), l.input[l.pos:])
 	}
 }

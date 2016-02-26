@@ -9,6 +9,7 @@ func strPtr(in string) *string {
 }
 
 var parseTestInputs = map[string][]*string{
+	`{}`:                            []*string{},
 	`{lions}`:                       []*string{strPtr("lions")},
 	`{lions,tigers}`:                []*string{strPtr("lions"), strPtr("tigers")},
 	`{lions,tigers,NULL}`:           []*string{strPtr("lions"), strPtr("tigers"), nil},
